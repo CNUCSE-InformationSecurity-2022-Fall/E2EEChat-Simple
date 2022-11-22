@@ -1,0 +1,61 @@
+﻿@page
+@model SecretChatRelay.Pages.MonitorModel
+
+<h1>SecureChat Message Debugging Monitor</h1>
+<form name="filter">
+    <span>다음 닉네임에서 오는 메세지만 보기: </span>
+    <input type="text" name="nickname" />
+</form>
+<ul class="list">
+
+</ul>
+
+<script src="~/signalr/dist/browser/signalr.js"></script>
+<script>
+(function () {
+    const list = document.querySelector(".list");
+
+    function addMessage(str) {
+        const liElem = document.createElement("li");
+        const xmpElem = document.createElement("xmp");
+
+        xmpElem.innerText = str;
+        liElem.appendChild(xmpElem);
+
+        list.appendChild(liElem);
+    }
+
+    window.addEventListener("load", function () {
+        const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chat")
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+        const init = async () => {
+            try {
+                await connection.start();
+                addMessage("Chat Service Connected! Now Listening...");
+            } catch {
+                addMessage("Chat Service Connection Failed... Retrying...");
+                setTimeout(init, 5000);
+            }
+        };
+
+        connection.onclose(async () => {
+            init();
+        });
+        
+        connection.on("MessageBroadcast", (user, message) => {
+            const filteredName = filter.nickname.value.trim();
+            
+            if (filteredName !== "" && filteredName !== user) {
+                return;
+            }
+
+            addMessage(`${user}: ${message}`);
+        })
+
+        init();
+    });
+})();
+</script>
