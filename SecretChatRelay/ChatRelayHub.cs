@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using SecretCharRelay;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace SecretChatRelay
 {
@@ -86,5 +88,15 @@ namespace SecretChatRelay
         public async Task PublicKeyExchangeResponse(string user)
             => await Clients.Client(users[user]).SendAsync("PublicKeyExchangeResponse", user);
 
+        public async Task RequestCertificate(string user)
+        {
+            Console.WriteLine("GENERATING CERTIFICATE: {0}", user);
+            
+            var pubKey = pubKeys[user];
+            var certificateRaw = Program.CreateCertificate(user, pubKey);
+            var certificate = Encoding.UTF8.GetBytes(certificateRaw);
+
+            await Clients.Caller.SendAsync("RequestCertificateResponse", Convert.ToBase64String(certificate));
+        }
     }
 }

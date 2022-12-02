@@ -38,15 +38,16 @@
             this.messageInput = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
             this.currentUserList = new System.Windows.Forms.ListView();
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.userListMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.contextMenuRequestKeyExchange = new System.Windows.Forms.ToolStripMenuItem();
+            this.인증서확인ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.pubKeySignature = new System.Windows.Forms.Label();
             this.chkDebug = new System.Windows.Forms.CheckBox();
             this.chkSecuredMessage = new System.Windows.Forms.CheckBox();
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.userListMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -132,20 +133,38 @@
             this.currentUserList.UseCompatibleStateImageBehavior = false;
             this.currentUserList.View = System.Windows.Forms.View.Details;
             // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "닉네임";
+            this.columnHeader4.Width = 120;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "공개키";
+            this.columnHeader5.Width = 80;
+            // 
             // userListMenu
             // 
             this.userListMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.contextMenuRequestKeyExchange});
+            this.contextMenuRequestKeyExchange,
+            this.인증서확인ToolStripMenuItem});
             this.userListMenu.Name = "userListMenu";
-            this.userListMenu.Size = new System.Drawing.Size(141, 26);
+            this.userListMenu.Size = new System.Drawing.Size(181, 70);
             this.userListMenu.Opening += new System.ComponentModel.CancelEventHandler(this.userListMenu_Opening);
             // 
             // contextMenuRequestKeyExchange
             // 
             this.contextMenuRequestKeyExchange.Name = "contextMenuRequestKeyExchange";
-            this.contextMenuRequestKeyExchange.Size = new System.Drawing.Size(140, 22);
+            this.contextMenuRequestKeyExchange.Size = new System.Drawing.Size(180, 22);
             this.contextMenuRequestKeyExchange.Text = "키 교환 요청";
             this.contextMenuRequestKeyExchange.Click += new System.EventHandler(this.contextMenuRequestKeyExchange_Click);
+            // 
+            // 인증서확인ToolStripMenuItem
+            // 
+            this.인증서확인ToolStripMenuItem.Name = "인증서확인ToolStripMenuItem";
+            this.인증서확인ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.인증서확인ToolStripMenuItem.Text = "인증서 확인";
+            this.인증서확인ToolStripMenuItem.Click += new System.EventHandler(this.RequestUserCertificate);
             // 
             // label2
             // 
@@ -198,16 +217,6 @@
             this.chkSecuredMessage.Text = "보안";
             this.chkSecuredMessage.UseVisualStyleBackColor = true;
             // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "닉네임";
-            this.columnHeader4.Width = 120;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "공개키";
-            this.columnHeader5.Width = 80;
-            // 
             // ChatForm
             // 
             this.AcceptButton = this.btnSend;
@@ -256,5 +265,6 @@
         private System.Windows.Forms.CheckBox chkSecuredMessage;
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.ColumnHeader columnHeader5;
+        private System.Windows.Forms.ToolStripMenuItem 인증서확인ToolStripMenuItem;
     }
 }

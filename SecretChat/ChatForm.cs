@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -76,70 +77,7 @@ namespace SecretChat
 
         public string ExecuteScript(string scriptName, params string[] args)
         {
-            try
-            {
-                StringBuilder result = new StringBuilder();
-
-                var process = new Process();
-                process.StartInfo = new ProcessStartInfo()
-                {
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WorkingDirectory = "python-scripts",
-                    FileName = "python.exe",
-                    Arguments = scriptName
-                };
-
-                var dataReceivedHandler = new DataReceivedEventHandler((sender, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        result.Append(e.Data + "\n");
-                    }
-                });
-
-                process.ErrorDataReceived += dataReceivedHandler;
-                process.OutputDataReceived += dataReceivedHandler;
-
-                _debuggingForm.AppendLog("Executing Script:: {0}\r\n", scriptName);
-
-                for (var i = 0; i < args.Length; ++i)
-                {
-                    _debuggingForm.AppendLog("With Args {0}: {1}\r\n", i, args[i]);
-                }
-
-                _debuggingForm.AppendLog("==========\r\n");
-
-                process.Start();
-
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-
-                foreach (var arg in args)
-                {
-                    var argTemp = arg;
-
-                    if (arg.EndsWith("\n"))
-                        argTemp = arg.Substring(0, arg.Length - 1);
-
-                    process.StandardInput.WriteLine(argTemp);
-                }
-
-                process.WaitForExit();
-
-                var output = result.ToString();
-
-                _debuggingForm.AppendLog(output.Replace("\n", "\r\n"));
-                return process.ExitCode == 0 ? output : "";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "스크립트 실행 오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
+            return Program.ExecuteScript(_debuggingForm, scriptName, args);
         }
 
         public bool ReportAndRetry(string message, Action action, Action ignored = null)
@@ -238,8 +176,7 @@ namespace SecretChat
             _connection.On<string, string>("MessageBroadcast", MessageBroadcastCallback);
             _connection.On<string, string>("CommonKeyExchange", CommonKeyExchangeCallback);
             _connection.On<string, string>("CommonKeyExchangeResponse", CommonKeyExchangeResponseCallback);
-            //_connection.On<string>("PublicKeyExchange", PublicKeyExchangeCallback);
-            //_connection.On<string, string>("PublicKeyExchangeResponse", PublicKeyExchangeResponseCallback);
+            _connection.On<string>("RequestCertificateResponse", RequestUserCertificateCallback);
         }
 
         private void LoginCallback(bool loginResult)
@@ -533,6 +470,38 @@ namespace SecretChat
                 {
                     MessageBox.Show("이 메세지는 위조되었을 가능성이 있습니다.", "무결성 검증", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
+            }
+        }
+
+        private void RequestUserCertificate(object sender, EventArgs e)
+        {
+            _connection.SendAsync("RequestCertificate", currentUserList.SelectedItems[0].Text);
+        }
+
+        private void RequestUserCertificateCallback(string certificate)
+        {
+            try
+            {
+                if (certificate == null)
+                    return;
+
+                var result = ExecuteScript("verify-certificate.py", certificate);
+
+                var jsonBytes = Convert.FromBase64String(result);
+                var json = Encoding.UTF8.GetString(jsonBytes);
+                var cert = JsonConvert.DeserializeObject<Certificate>(json);
+
+                if (cert == null)
+                {
+                    throw new Exception("인증서 형식이 잘못되었습니다!!!");   
+                }
+
+                var form = new CertForm(cert);
+                form.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"인증서 처리 실패!!!\n{ex.Message}", "인증서 오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
