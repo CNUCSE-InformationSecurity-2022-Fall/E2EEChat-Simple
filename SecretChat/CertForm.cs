@@ -13,7 +13,7 @@ namespace SecretChat
 {
     public partial class CertForm : Form
     {
-        string Sha256Fingerprint(string keyStr) => Sha256Fingerprint(Encoding.UTF8.GetBytes(keyStr));
+        string Sha256Fingerprint(string keyStr) => Sha256Fingerprint(Convert.FromBase64String(keyStr));
 
         string Sha256Fingerprint(byte[] keyBytes) => BitConverter.ToString(
             SHA256.Create().ComputeHash(keyBytes).Take(6).ToArray()
@@ -33,6 +33,7 @@ namespace SecretChat
             serverPubKeyFingerprint.Text = Sha256Fingerprint(cert.ServerPubKey);
             txtServerPubKey.Text = ToPem(cert.ServerPubKey);
 
+            txtPubKeyHash.Text = cert.Hash;
             txtServerSignature.Text = cert.Signature;
 
             txtCertValidity.Text = cert.IsValid ? "인증서가 유효합니다. (서버 서명 유효)" : "인증서가 유효하지 않습니다.";
