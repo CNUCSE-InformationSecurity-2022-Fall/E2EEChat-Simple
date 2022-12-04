@@ -8,6 +8,21 @@
 ![image](https://user-images.githubusercontent.com/13935811/203414191-777a2ef0-bde4-4c43-b89f-33408045f93e.png)
 
 ## 테스트용 인증서 정보
+
+### JSON Specification
+
+```
+{
+    "name": string,
+    "hash": string (hex),
+    "pubKey": base64,
+    "serverPubKey": base64,
+    "signature": base64
+}
+```
+
+### 테스트 정보
+
 ![image](https://user-images.githubusercontent.com/13935811/205376355-a4a4de99-9680-4e81-b395-4598a1ec8b59.png)
 
 * 테스트용 사용자 (조교허강준) 공개키
